@@ -4,22 +4,24 @@
 
 --SELECT
 /* 1. Write a query that returns everything in the customer table. */
-
+Select * from customer
 
 
 /* 2. Write a query that displays all of the columns and 10 rows from the cus- tomer table, 
 sorted by customer_last_name, then customer_first_ name. */
 
+Select top 10 * from customer
+Order by customer_last_name, customer_first_ name
 
 
 --WHERE
 /* 1. Write a query that returns all customer purchases of product IDs 4 and 9. */
 -- option 1
-
+Where product_id ='4' or product_id= '9'
 
 -- option 2
 
-
+Where product_id in ('4',  '9')
 
 /*2. Write a query that returns all customer purchases and a new calculated column 'price' (quantity * cost_to_customer_per_qty), 
 filtered by vendor IDs between 8 and 10 (inclusive) using either:
@@ -27,7 +29,8 @@ filtered by vendor IDs between 8 and 10 (inclusive) using either:
 	2.  one condition using BETWEEN
 */
 -- option 1
-
+Select customer, product,  quantity * cost_to_customer_per_qty as price 
+from customer
 
 -- option 2
 
@@ -39,7 +42,9 @@ Using the product table, write a query that outputs the product_id and product_n
 columns and add a column called prod_qty_type_condensed that displays the word “unit” 
 if the product_qty_type is “unit,” and otherwise displays the word “bulk.” */
 
-
+Select product_id , product_name, prod_qty_type_condense
+from product 
+where product_qty_type
 
 /* 2. We want to flag all of the different types of pepper products that are sold at the market. 
 add a column to the previous query called pepper_flag that outputs a 1 if the product_name 
@@ -51,8 +56,9 @@ contains the word “pepper” (regardless of capitalization), and otherwise out
 /* 1. Write a query that INNER JOINs the vendor table to the vendor_booth_assignments table on the 
 vendor_id field they both have in common, and sorts the result by vendor_name, then market_date. */
 
-
-
+Select vendor_name, market_date
+from vendor_booth INNER JOINS vendor_assignments
+where vendor_booth.vendor_id = vendor_assignments.vendor_id
 
 /* SECTION 3 */
 
