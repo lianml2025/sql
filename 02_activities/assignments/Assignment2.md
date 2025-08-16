@@ -56,8 +56,35 @@ The store wants to keep customer addresses. Propose two architectures for the CU
 ```
 Your answer...
 ```
+Type 1 (Overwriting)
+CUSTOMER_ADDRESS (Type 1)
+- address_id (PK)
+- customer_id (FK)
+- apartment
+- street
+- city
+- state
+- postal_code
+- country
+- is_primary
+This architecture only maintains customer's current address, every time it updates it overwrites previous address.
 
-***
+Type 2 (Historical Retention)
+CUSTOMER_ADDRESS (Type 2)
+- address_id (PK)
+- customer_id (FK)
+- apartment
+- street
+- city
+- state
+- postal_code
+- country
+- is_primary
+- effective_date
+- end_date
+- current_flag (Y/N)
+
+The 2nd architecture keeps historical address for the customer through including the effective date and end date also with a indicator to identify the current active address. Every time it updates it will append the new records. 
 
 ## Section 2:
 You can start this section following *session 4*.
