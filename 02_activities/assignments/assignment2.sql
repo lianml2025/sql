@@ -201,6 +201,18 @@ How many customers are there (y).
 Before your final group by you should have the product of those two queries (x*y).  */
 
 
+SELECT
+    v.vendor_name,
+    p.product_name,
+    (5 * vi.original_price * (SELECT COUNT(*) FROM customer)) AS projected_revenue
+FROM (
+    SELECT DISTINCT vendor_id, product_id, original_price
+    FROM vendor_inventory
+) vi
+JOIN vendor v ON vi.vendor_id = v.vendor_id
+JOIN product p ON vi.product_id = p.product_id
+ORDER BY projected_revenue DESC, v.vendor_name, p.product_name;
+
 
 -- INSERT
 /*1.  Create a new table "product_units". 
@@ -208,11 +220,35 @@ This table will contain only products where the `product_qty_type = 'unit'`.
 It should use all of the columns from the product table, as well as a new column for the `CURRENT_TIMESTAMP`.  
 Name the timestamp column `snapshot_timestamp`. */
 
-
+CREATE TABLE product_units AS
+SELECT 
+    p.*,
+    CURRENT_TIMESTAMP AS snapshot_timestamp
+FROM 
+    product p
+WHERE 
+    product_qty_type = 'unit';
 
 /*2. Using `INSERT`, add a new row to the product_units table (with an updated timestamp). 
 This can be any product you desire (e.g. add another record for Apple Pie). */
 
+INSERT INTO product_units (
+    product_id,
+    product_name,
+    product_size,
+    product_category_id,
+    product_qty_type,
+    snapshot_timestamp
+
+)
+VALUES (
+    (SELECT MAX(product_id) + 1 FROM product_units), -- Auto-generate a new ID
+    'Butter Tart',
+    '1 dozen',
+   3,
+    'unit',
+    CURRENT_TIMESTAMP
+);
 
 
 -- DELETE
@@ -220,7 +256,15 @@ This can be any product you desire (e.g. add another record for Apple Pie). */
 
 HINT: If you don't specify a WHERE clause, you are going to have a bad time.*/
 
-
+DELETE FROM product_units
+WHERE product_id = (
+    SELECT product_id 
+    FROM product_units
+    WHERE product_name = 'Butter Tart'
+    ORDER BY snapshot_timestamp ASC
+    LIMIT 1
+)
+AND product_name = 'Butter Tart';
 
 -- UPDATE
 /* 1.We want to add the current_quantity to the product_units table. 
@@ -240,5 +284,18 @@ Finally, make sure you have a WHERE statement to update the right row,
 When you have all of these components, you can run the update statement. */
 
 
-
+UPDATE product_units pu
+SET current_quantity = COALESCE(
+    (
+        SELECT vi.quantity
+        FROM vendor_inventory vi
+        WHERE vi.product_id = pu.product_id
+        AND vi.market_date = (
+            SELECT MAX(market_date)
+            FROM vendor_inventory
+            WHERE product_id = pu.product_id
+        )
+    ), 
+    0
+);
 
