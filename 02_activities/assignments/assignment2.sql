@@ -126,7 +126,18 @@ Remove any trailing or leading whitespaces. Don't just use a case statement for 
 
 Hint: you might need to use INSTR(product_name,'-') to find the hyphens. INSTR will help split the column. */
 
-
+SELECT 
+    product_name,
+    CASE 
+        WHEN INSTR(product_name, '-') > 0 
+        THEN TRIM(SUBSTR(
+            product_name, 
+            INSTR(product_name, '-') + 1
+        ))
+        ELSE NULL 
+    END AS description
+FROM 
+    product;
 
 
 -- UNION
@@ -140,7 +151,41 @@ HINT: There are a possibly a few ways to do this query, but if you're struggling
 with a UNION binding them. */
 
 
+WITH daily_sales AS (
+    SELECT 
+        market_date,
+        SUM(quantity * cost_to_customer_per_qty) AS total_sales
+    FROM 
+        customer_purchases
+    GROUP BY 
+        market_date
+)
 
+SELECT * FROM (
+    SELECT 
+        market_date,
+        total_sales,
+        'Highest Sales Day' AS sales_category
+    FROM 
+        daily_sales
+    ORDER BY 
+        total_sales DESC
+    LIMIT 1
+) AS highest
+
+UNION ALL
+
+SELECT * FROM (
+    SELECT 
+        market_date,
+        total_sales,
+        'Lowest Sales Day' AS sales_category
+    FROM 
+        daily_sales
+    ORDER BY 
+        total_sales ASC
+    LIMIT 1
+) AS lowest;
 
 /* SECTION 3 */
 
